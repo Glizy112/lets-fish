@@ -1,15 +1,16 @@
 const db = require('../db/database');
+const { sendPhishingEmail } = require('../services/emailService');
 
-//Create campaign
+//Create a campaign
 exports.createCampaign = (req, res) => {
-  const { name, template } = req.body;
+  const { name, template, trigger_type } = req.body;
 
   const query = `
-    INSERT INTO campaigns (name, template)
-    VALUES (?, ?)
+    INSERT INTO campaigns (name, template, trigger_type)
+    VALUES (?, ?, ?)
   `;
 
-  db.run(query, [name, template], function (err) {
+  db.run(query, [name, template, trigger_type], function (err) {
     if (err) {
       return res.status(500).json({
         message: 'Failed to create campaign',
@@ -24,7 +25,7 @@ exports.createCampaign = (req, res) => {
   });
 };
 
-// Get campaign by ID
+//Get campaign by ID
 exports.getCampaignById = (req, res) => {
   const { id } = req.params;
 
@@ -48,4 +49,26 @@ exports.getCampaignById = (req, res) => {
       res.json(row);
     }
   );
+};
+
+exports.sendCampaignEmail = async (req, res) => {
+  const { recipientEmail, campaignId, userId, subject, template } = req.body;
+
+  try {
+    await sendPhishingEmail({
+      recipientEmail,
+      campaignId,
+      userId,
+      subject,
+      template
+    });
+    res.json({
+      message: 'Simulation email sent successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Email sending failed',
+      error: error.message
+    });
+  }
 };

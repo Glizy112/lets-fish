@@ -23,7 +23,9 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT,
       template TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      trigger_type TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      sent_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -33,7 +35,17 @@ db.serialize(() => {
       user_id INTEGER,
       campaign_id INTEGER,
       event_type TEXT,
-      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      event_time DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  db.run(`
+    CREATE TABLE IF NOT EXISTS credential_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      campaign_id INTEGER,
+      email TEXT,
+      password TEXT,
+      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 });
