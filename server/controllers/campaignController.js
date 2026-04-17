@@ -72,3 +72,16 @@ exports.sendCampaignEmail = async (req, res) => {
     });
   }
 };
+
+exports.getAllCampaigns = (req, res) => {
+  db.all(`SELECT id, name FROM campaigns`, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({
+        message: 'Failed to fetch campaigns',
+        error: err.message
+      });
+    }
+
+    res.json(rows);
+  });
+};

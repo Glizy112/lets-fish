@@ -46,14 +46,33 @@ const CustomTooltip = ({ active, payload, label }) => {
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [timing, setTiming] = useState(null);
+  const [campaigns, setCampaigns] = useState([]);
+  const [selectedCampaign, setSelectedCampaign] = useState('');
 
   useEffect(() => {
-    fetchDashboardData();
+    //fetchDashboardData();
+    fetchCampaigns();
   }, []);
 
-  const fetchDashboardData = async (id = 1) => {
-    const analyticsRes = await API.get(`/api/analytics/1`);
-    const timingRes = await API.get(`/api/analytics/1/timing`);
+  const fetchCampaigns = async () => {
+    const res = await API.get('/api/campaigns');
+    setCampaigns(res.data);
+
+    if (res.data.length > 0) {
+      setSelectedCampaign(res.data[0].id);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedCampaign) {
+      fetchDashboardData(selectedCampaign);
+    }
+  }, [selectedCampaign]);
+
+
+  const fetchDashboardData = async (campaignId) => {
+    const analyticsRes = await API.get(`/api/analytics/${campaignId}`);
+    const timingRes = await API.get(`/api/analytics/${campaignId}/timing`);
     setStats(analyticsRes.data);
     setTiming(timingRes.data);
   };
@@ -93,11 +112,17 @@ function AdminDashboard() {
 
         <div className="flex items-center gap-3">
           <select
+            value={selectedCampaign}
             className="rounded-lg border px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-200"
             style={{ borderColor: '#93C5FD', background: 'white' }}
-            onChange={(e) => fetchDashboardData(e.target.value)}
+            //onChange={(e) => fetchDashboardData(e.target.value)}
+            onChange={(e)=> setSelectedCampaign(e.target.value)}
           >
-            <option value="1">Campaign 1</option>
+            {campaigns.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
           </select>
 
           <button
